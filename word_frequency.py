@@ -6,27 +6,30 @@ STOP_WORDS = [
     'will', 'with'
 ]
 
+#manages all other functions to process and print word frequency
 def controller(file):
     """Read in `file` and print out the frequency of words in that file."""
     this_file = open(file)
     text = this_file.readlines()
-
     word_list = process_text_to_words(text)
     dictionary_info = count_words(word_list)
     print_word_freq(dictionary_info)
-    #this_file.close()
+    this_file.close()
 
+#does all of the processing of the text from raw file lines into an array of words
 def process_text_to_words(text):
     str = ""
     for item in text:
         str += item
     str = str.lower()
-    words = re.sub(r'[?|—|:|"|,\s|,|\.\n|\.\s|\s|\n|\.|]', "*", str)
-    words2 = words.split("*")
-    words_filtered = [word for word in words2 if len(word) > 1 and word not in STOP_WORDS]
+    words = re.sub(r'[?|—|:|"|,|\.\n|\.|\s|\n|]+', "*", str)
+    words_split = words.split("*")
+    words_filtered = [word for word in words_split if len(word) > 1 and word not in STOP_WORDS] #The len(word) check is here because there's still one piece of white space I haven't pinned down in each file.  I haven't taken the time to figure out a quick way to look at all the whitespace characters yet.
     words_filtered.sort()
     return words_filtered
 
+
+#puts all words into a dictionary, incrementing the count value for each time it's encountered
 def count_words(list):
     dictionary = {}
     for word in list:
@@ -34,16 +37,17 @@ def count_words(list):
             dictionary[word] += 1
         else:
             dictionary[word] = 1
-    letter_sorted = sorted(dictionary.items(), key=lambda entry: entry[0])
-    count_sorted = sorted(letter_sorted, key=lambda seq: seq[1], reverse=True)
+    letter_sorted = sorted(dictionary.items(), key=lambda entry: entry[0])   #sorts dictionary into alphabetized tuples
+    count_sorted = sorted(letter_sorted, key=lambda seq: seq[1], reverse=True) #sorts alphabetical tuples into count order
     return count_sorted
 
-
+#prints word frequency in desired format
 def print_word_freq(frequency_dictionary):
     for item in frequency_dictionary:
         print(item[0].rjust(15) + "  |  " + str(item[1]).ljust(3) + " " + (item[1] * "*"))
 
 
+#given function to check arguments list and call the controller function with a file name to be processed
 if __name__ == "__main__":
     import argparse
     from pathlib import Path
@@ -59,41 +63,3 @@ if __name__ == "__main__":
     else:
         print(f"{file} does not exist!")
         exit(1)
-
-
-
-
-#     word_list = process_text_to_words(text)
-#     dictionary_info = count_words(word_list)
-#     print_word_freq(dictionary_info[0], dictionary_info[1])
-#     this_file.close()
-
-# def process_text_to_words(text):
-#     str = ""
-#     for item in text:
-#         str += item
-#     str = str.lower()
-#     words = re.sub(r'[ - |:|"|,\s|,|\.\n|\.\s|\s|\n|\.|]', "*", str)
-#     words2 = words.split("*")
-#     words_filtered = [word for word in words2 if len(word) > 1 and word not in STOP_WORDS]
-#     words_filtered.sort()
-#     return words_filtered
-
-# def count_words(list):
-#     dictionary = {}
-#     max_count = 1
-#     for word in list:
-#         if word in dictionary:
-#             dictionary[word] += 1
-#             if dictionary[word] > max_count:
-#                 max_count = dictionary[word]
-#         else:
-#             dictionary[word] = 1
-#     return [dictionary, max_count]
-
-# def print_word_freq(frequency_dictionary, max_count):
-#     for word_count in range(max_count, 0, -1):
-#         word_list = [key for key,value in frequency_dictionary.items() if value == word_count]
-#         if len(word_list) > 0:
-#             for word in word_list:
-#                 print(word.rjust(15) + "  |  " + str(word_count).ljust(3) + " " + (word_count * "*"))
